@@ -1,7 +1,6 @@
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
 import { canvasToBlob } from './helpers/saveCanvasHelpers';
-import { importImage } from './helpers/importImageHelpers';
 import { extractOffSetFromEvent } from './helpers/eventHelpers';
 import { getCanvasDimensionsScaledForImage } from './helpers/canvasHelpers';
 import { fileToUrl, revokeUrl } from './helpers/objectUrlHelpers';
@@ -49,7 +48,7 @@ export interface ReactPainterProps {
   initialLineJoin?: LineJoinType;
   initialLineCap?: LineCapType;
   onSave?: (blob: Blob) => void;
-  image?: File | string;
+  // image?: File | string;
   render?: (props: RenderProps) => JSX.Element;
 }
 
@@ -69,7 +68,7 @@ export class ReactPainter extends React.Component<ReactPainterProps, PainterStat
   static propTypes = {
     color: PropTypes.string,
     height: PropTypes.number,
-    image: PropTypes.oneOfType([PropTypes.instanceOf(File), PropTypes.string]),
+    // image: PropTypes.oneOfType([PropTypes.instanceOf(File), PropTypes.string]),
     lineCap: PropTypes.string,
     lineJoin: PropTypes.string,
     lineWidth: PropTypes.number,
@@ -80,7 +79,7 @@ export class ReactPainter extends React.Component<ReactPainterProps, PainterStat
 
   static defaultProps: Partial<ReactPainterProps> = {
     height: 300,
-    image: undefined,
+    // image: undefined,
     onSave: () => undefined,
     initialColor: '#000',
     initialLineCap: 'round',
@@ -222,27 +221,10 @@ export class ReactPainter extends React.Component<ReactPainterProps, PainterStat
   };
 
   componentDidMount() {
-    const { width, height, image } = this.props;
+    const { width, height } = this.props;
     // Disable touch action as we handle it separately
     document.body.style.touchAction = 'none';
-    if (image) {
-      importImage(image)
-        .then(({ img, imgWidth, imgHeight }) => {
-          this.initCanvasWithImage(width, imgWidth, imgHeight);
-          this.ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
-          this.setState({
-            imageCanDownload: true
-          });
-        })
-        .catch(() => {
-          this.setState({
-            imageCanDownload: false
-          });
-          this.initCanvasNoImage(width, height);
-        });
-    } else {
-      this.initCanvasNoImage(width, height);
-    }
+    this.initCanvasNoImage(width, height);
   }
 
   componentWillUnmount() {
